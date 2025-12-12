@@ -48,6 +48,7 @@ tls-support.exe [opzioni] <URL>
 ### Opzioni disponibili
 
 - `--insecure`: Ignora gli errori di verifica del certificato SSL/TLS (utile per certificati auto-firmati o scaduti)
+- `--timeout N`: Imposta il timeout di connessione in secondi (default: 5)
 
 ### Esempi
 
@@ -108,6 +109,14 @@ Versioni TLS non supportate:
   ✗ TLS 1.3
 ```
 
+#### Verifica con timeout personalizzato
+
+```bash
+tls-support.exe --timeout 10 https://slow-server.example.com
+```
+
+Questo imposta un timeout di 10 secondi invece del default di 5 secondi, utile per server lenti o connessioni instabili.
+
 #### Mostra l'help
 
 ```bash
@@ -132,10 +141,16 @@ Il programma:
 
 ### Timeout connessione
 
-Il timeout di connessione predefinito è di 5 secondi. Per modificarlo, modifica la riga nel codice sorgente:
+Il timeout di connessione predefinito è di 5 secondi. Puoi modificarlo usando l'opzione `--timeout`:
+
+```bash
+tls-support.exe --timeout 10 https://example.com
+```
+
+Per modificare il valore predefinito, modifica la riga nel codice sorgente:
 
 ```go
-Timeout: 5 * time.Second,
+timeout := flag.Int("timeout", 5, "Timeout di connessione in secondi")
 ```
 
 ### Versioni TLS da testare
