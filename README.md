@@ -49,6 +49,8 @@ tls-support.exe [opzioni] <URL>
 
 - `--insecure`: Ignora gli errori di verifica del certificato SSL/TLS (utile per certificati auto-firmati o scaduti)
 - `--timeout N`: Imposta il timeout di connessione in secondi (default: 5)
+- `--csv <file>`: Legge un elenco di URL da un file CSV e restituisce un report tabellare
+- `--out <file>`: Salva i risultati dell'elaborazione CSV in un nuovo file CSV strutturato
 
 ### Esempi
 
@@ -65,48 +67,36 @@ Host: www.google.com:443
 
 Tentativo con TLS 1.0... ✓ Supportata
 Tentativo con TLS 1.1... ✓ Supportata
-Tentativo con TLS 1.2... ✓ Supportata
-Tentativo con TLS 1.3... ✓ Supportata
-
-======================
-RIEPILOGO
-======================
-
-Versioni TLS supportate:
-  ✓ TLS 1.0
-  ✓ TLS 1.1
-  ✓ TLS 1.2
-  ✓ TLS 1.3
+...
 ```
 
-#### Verifica server con certificato auto-firmato
+#### Verifica batch ed esportazione report
+ 
+Puoi verificare più URL da un file CSV e salvare i risultati in un nuovo file.
 
+Comando:
 ```bash
-tls-support.exe --insecure https://self-signed.badssl.com
+tls-support.exe --csv urls.csv --out report.csv
 ```
 
-**Output:**
+**Output (Console):**
 ```
-Verifica delle versioni TLS supportate per: https://self-signed.badssl.com
-Host: self-signed.badssl.com:443
-Modalità: INSECURE (ignora errori certificato)
+Scansione di 3 URL in corso...
+Salvataggio risultati in: report.csv
 
-Tentativo con TLS 1.0... ✓ Supportata
-Tentativo con TLS 1.1... ✓ Supportata
-Tentativo con TLS 1.2... ✓ Supportata
-Tentativo con TLS 1.3... ✗ Non supportata
+URL                         TLS 1.0 TLS 1.1 TLS 1.2 TLS 1.3 Status
+---                         ------- ------- ------- ------- ------
+https://google.com          YES     YES     YES     YES     OK
+...
 
-======================
-RIEPILOGO
-======================
+Elaborazione completata. Risultati salvati in report.csv
+```
 
-Versioni TLS supportate:
-  ✓ TLS 1.0
-  ✓ TLS 1.1
-  ✓ TLS 1.2
-
-Versioni TLS non supportate:
-  ✗ TLS 1.3
+**Contenuto generato in `report.csv`:**
+```csv
+URL,Host,TLS 1.0,TLS 1.1,TLS 1.2,TLS 1.3,Error
+https://google.com,www.google.com:443,true,true,true,true,
+https://facebook.com,www.facebook.com:443,false,false,true,true,
 ```
 
 #### Verifica con timeout personalizzato
