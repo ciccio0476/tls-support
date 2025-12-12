@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -29,16 +30,18 @@ var tlsVersionsToTest = []uint16{
 func main() {
 	// Define flags
 	insecure := flag.Bool("insecure", false, "Ignora gli errori di verifica del certificato SSL/TLS")
+	timeout := flag.Int("timeout", 5, "Timeout di connessione in secondi")
 	flag.Parse()
 
 	// Get the URL from remaining arguments
 	args := flag.Args()
 	if len(args) < 1 {
-		fmt.Println("Uso: go run main.go [opzioni] <URL>")
+		execName := filepath.Base(os.Args[0])
+		fmt.Printf("Uso: %s [opzioni] <URL>\n", execName)
 		fmt.Println("\nOpzioni:")
 		flag.PrintDefaults()
-		fmt.Println("\nEsempio: go run main.go https://www.google.com")
-		fmt.Println("Esempio: go run main.go --insecure https://self-signed.example.com")
+		fmt.Printf("\nEsempio: %s https://www.google.com\n", execName)
+		fmt.Printf("Esempio: %s --insecure https://self-signed.example.com\n", execName)
 		os.Exit(1)
 	}
 
@@ -77,7 +80,7 @@ func main() {
 		versionName := tlsVersionNames[version]
 		fmt.Printf("Tentativo con %s... ", versionName)
 
-		if testTLSVersion(host, version, *insecure) {
+		if testTLSVersion(host, version, *insecure, *timeout) {
 			fmt.Println("✓ Supportata")
 			supported = append(supported, versionName)
 		} else {
@@ -106,7 +109,7 @@ func main() {
 	}
 }
 
-func testTLSVersion(host string, version uint16, insecure bool) bool {
+func testTLSVersion(host string, version uint16, insecure bool, timeoutSeconds int) bool {
 	config := &tls.Config{
 		MinVersion:         version,
 		MaxVersion:         version,
@@ -115,7 +118,7 @@ func testTLSVersion(host string, version uint16, insecure bool) bool {
 
 	conn, err := tls.DialWithDialer(
 		&net.Dialer{
-			Timeout: 5 * time.Second,
+			Timeout: time.Duration(timeoutSeconds) * time.Second,
 		},
 		"tcp",
 		host,
