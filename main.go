@@ -213,6 +213,14 @@ func checkDomain(targetURL string, insecure bool, timeoutSeconds int) TLSResult 
 	}
 	result.Host = host
 
+	// Check connectivity first
+	conn, err := net.DialTimeout("tcp", host, time.Duration(timeoutSeconds)*time.Second)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+	conn.Close()
+
 	for _, version := range tlsVersionsToTest {
 		supported := testTLSVersion(host, version, insecure, timeoutSeconds)
 		result.Supported[version] = supported
